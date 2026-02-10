@@ -1,0 +1,10 @@
+version: "3.8"
+
+services:
+  api:
+    build: ./api
+    container_name: api_service
+
+  worker:
+    build: ./worker
+    container_name: worker_service
