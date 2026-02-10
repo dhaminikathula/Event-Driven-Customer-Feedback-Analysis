@@ -1,10 +1,17 @@
 # Kafka consumer that processes messages asynchronously
 import json
 import time
+import nltk
 from kafka import KafkaConsumer
+from nltk.sentiment import SentimentIntensityAnalyzer
+
+# Download VADER lexicon (only once)
+nltk.download("vader_lexicon")
 
 def main():
-    print("🚀 Worker starting...", flush=True)
+    print("🚀 Worker started with sentiment analysis", flush=True)
+
+    sia = SentimentIntensityAnalyzer()
 
     while True:
         try:
@@ -21,10 +28,21 @@ def main():
             print("✅ Connected to Kafka. Waiting for messages...", flush=True)
 
             for message in consumer:
-                print("📩 Received message:", message.value, flush=True)
+                feedback = message.value["text"]
+
+                scores = sia.polarity_scores(feedback)
+
+                sentiment = (
+                    "Positive" if scores["compound"] >= 0.05 else
+                    "Negative" if scores["compound"] <= -0.05 else
+                    "Neutral"
+                )
+
+                print("📩 Feedback:", feedback, flush=True)
+                print("📊 Sentiment:", sentiment, scores, flush=True)
 
         except Exception as e:
-            print("❌ Kafka not ready, retrying in 5 seconds...", e, flush=True)
+            print("❌ Error. Retrying in 5 seconds:", e, flush=True)
             time.sleep(5)
 
 if __name__ == "__main__":
