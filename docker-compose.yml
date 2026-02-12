@@ -39,6 +39,7 @@ services:
       - kafka
     ports:
       - "8000:8000"
+    restart: always
     env_file:
       - .env
 
@@ -48,6 +49,7 @@ services:
     depends_on:
       - kafka
       - mysql
+    restart: always
     env_file:
       - .env
 
